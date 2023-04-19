@@ -30,4 +30,4 @@ RUN npm run build
 
 COPY --from=development /usr/src/app/dist ./dist
 
-CMD ["node", "dist/apps/auth/main"]
+CMD ["node", "dist/src/main"]

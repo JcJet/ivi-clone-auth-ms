@@ -28,7 +28,7 @@ export class AuthService {
     const candidate = await this.usersService.getUserByEmail(userDto.email);
 
     if (candidate) {
-      //TODO: returns status 500, not good.
+      //TODO: returns internal server error in response, not good.
       throw new HttpException(
         'Пользователь с таким email уже существует',
         HttpStatus.BAD_REQUEST,
