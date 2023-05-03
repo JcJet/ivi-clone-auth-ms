@@ -1,0 +1,25 @@
+import { Module } from '@nestjs/common';
+import { TokenService } from './token.service';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { RolesModule } from '../users/roles/roles.module';
+import { Token } from './token.entity';
+import { JwtModule } from '@nestjs/jwt';
+
+@Module({
+  providers: [TokenService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    JwtModule.register({
+      secret: process.env.PRIVATE_KEY || 'SECRET',
+      signOptions: {
+        expiresIn: '1h',
+      },
+    }),
+    TypeOrmModule.forFeature([Token]),
+  ],
+  exports: [TokenService, JwtModule],
+})
+export class TokenModule {}

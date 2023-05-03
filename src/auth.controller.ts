@@ -3,7 +3,7 @@ import { Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from './users/users.service';
 import { User } from './users/users.entity';
-import { UserDto } from "./users/dto/user.dto";
+import { UserDto } from './users/dto/user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -12,18 +12,35 @@ export class AuthController {
     private usersService: UsersService,
   ) {}
 
-  @MessagePattern('profile_login')
+  @MessagePattern('login')
   @Post('login')
-  async login(@Payload() data: { dto: UserDto }): Promise<string> {
-    return await this.authService.login(data.dto);
+  async login(@Payload() data: { dto: UserDto }) {
+    return await this.usersService.login(data.dto);
   }
 
+  @MessagePattern('logout')
+  @Post('logout')
+  async logout(@Payload() data: { refreshToken: string }) {
+    return await this.usersService.logout(data.refreshToken);
+  }
+
+  @MessagePattern('refresh')
+  @Post('refresh')
+  async refresh(@Payload() data: { refreshToken: string }) {
+    return await this.usersService.refresh(data.refreshToken);
+  }
+  @MessagePattern('activate')
+  @Post('activate')
+  async activate(@Payload() data: { activationLink: string }) {
+    return await this.usersService.activate(data.activationLink);
+  }
   @MessagePattern('create_user')
   @Post()
-  async create(
-    @Payload() data: { dto: UserDto },
-  ): Promise<{ User: User; Token: string }> {
-    return await this.authService.registration(data.dto);
+  async create(@Payload() data: { dto: UserDto }): Promise<{
+    user: User;
+    tokens: { accessToken: string; refreshToken: string };
+  }> {
+    return await this.usersService.registration(data.dto);
   }
 
   @MessagePattern('delete_user')

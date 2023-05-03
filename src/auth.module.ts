@@ -8,6 +8,9 @@ import { ConfigModule } from '@nestjs/config';
 import { User } from './users/users.entity';
 import { Role } from './users/roles/roles.entity';
 import { UsersModule } from './users/users.module';
+import { Token } from "./token/token.entity";
+import { TokenModule } from './token/token.module';
+import { MailModule } from './mail/mail.module';
 
 // Модуль авторизации и проверки доступа
 
@@ -20,12 +23,6 @@ import { UsersModule } from './users/users.module';
       isGlobal: true,
       envFilePath: './apps/auth/.env',
     }),
-    JwtModule.register({
-      secret: process.env.PRIVATE_KEY || 'SECRET',
-      signOptions: {
-        expiresIn: '1h',
-      },
-    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST,
@@ -37,8 +34,10 @@ import { UsersModule } from './users/users.module';
       synchronize: true,
     }),
     TypeOrmModule.forFeature([User, Role]),
+    TokenModule,
+    MailModule,
   ],
   controllers: [AuthController],
-  exports: [AuthService, JwtModule],
+  exports: [AuthService],
 })
 export class AuthModule {}

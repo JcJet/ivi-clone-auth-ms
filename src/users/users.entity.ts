@@ -29,6 +29,20 @@ export class User {
   @Column({ type: 'varchar', length: 255 })
   password: string;
 
+  @ApiProperty({
+    example: 'false',
+    description: 'Активирован ли по ссылке из почты',
+  })
+  @Column({ type: 'boolean', default: false, nullable: true })
+  isActivated: boolean;
+
+  @ApiProperty({
+    example: 'v34fa-asfasf-142saf-sa-asf',
+    description: 'Ссылка для активации',
+  })
+  @Column({ type: 'varchar', nullable: true })
+  activationLink: string;
+
   @ApiProperty({ example: 'false', description: 'Забанен или нет' })
   @Column({ type: 'boolean', default: false })
   banned: boolean;
