@@ -21,7 +21,7 @@ import { MailModule } from './mail/mail.module';
     UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: './apps/auth/.env',
+      //envFilePath: './apps/auth/.env',
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',

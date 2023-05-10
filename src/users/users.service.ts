@@ -169,6 +169,7 @@ export class UsersService {
 
   // Изменение данных пользователя
   async updateUser(id: number, dto: UserDto): Promise<User> {
+    // TODO: try Repository.update({ id }, dto);
     const updateResult = await this.usersRepository
       .createQueryBuilder()
       .update()
