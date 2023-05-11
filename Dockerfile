@@ -1,15 +1,12 @@
 FROM node:alpine as development
 
-RUN mkdir -p /app
 WORKDIR /app
-
-COPY . /app
-
-RUN npm install
 
 COPY . .
 
-RUN npm run build
+RUN npm i
+
+RUN ["npm", "run", "start:dev"]
 
 FROM node:alpine as production
 
