@@ -1,18 +1,19 @@
 import {
   HttpException,
-  HttpStatus,
+  HttpStatus, Inject,
   Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+  UnauthorizedException
+} from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './users.entity';
 import { UserDto } from './dto/user.dto';
-import { AddRoleDto } from './dto/add-role.dto';
 import * as bcrypt from 'bcrypt';
 import { TokenService } from '../token/token.service';
 import * as uuid from 'uuid';
 import { MailService } from '../mail/mail.service';
+import { lastValueFrom } from "rxjs";
+import { ClientProxy } from "@nestjs/microservices";
 
 @Injectable()
 export class UsersService {
@@ -21,7 +22,20 @@ export class UsersService {
     private usersRepository: Repository<User>,
     private tokenService: TokenService,
     private mailService: MailService,
+    @Inject('TO_ROLES_MS') private toRolesProxy: ClientProxy,
   ) {}
+  async getUserRoles(userId) {
+    return await lastValueFrom(
+      this.toRolesProxy.send('getUserRoles', { userId }),
+    );
+  }
+  // payload для jwt-токенов
+  async generatePayload(user: User) {
+    const roles = await this.getUserRoles(user.id);
+    const rolesValues = await roles.map((role) => role.value);
+    console.log(rolesValues);
+    return { userId: user.id, email: user.email, roles: rolesValues };
+  }
   // Регистрация нового пользователя
   async registration(dto: UserDto) {
     const candidate = await this.getUserByEmail(dto.email);
@@ -48,7 +62,7 @@ export class UsersService {
     user.activationLink = activationLink;
     await this.usersRepository.save(user);
 
-    const payload = { userId: user.id, email: user.email };
+    const payload = await this.generatePayload(user);
     const tokens = this.tokenService.generateTokens(payload);
     return { user: user, tokens: tokens };
   }
@@ -72,8 +86,8 @@ export class UsersService {
         message: 'Неверный пароль',
       });
     }
-    const payload = { userId: user.id, email: user.email };
-    const tokens = this.tokenService.generateTokens({ payload });
+    const payload = await this.generatePayload(user);
+    const tokens = this.tokenService.generateTokens(payload);
     await this.tokenService.saveToken(user.id, tokens.refreshToken);
     return { ...tokens, user };
   }
@@ -104,7 +118,7 @@ export class UsersService {
     const user = await this.usersRepository.findOneBy({
       id: userData.userId,
     });
-    const payload = { userId: user.id, email: user.email };
+    const payload = await this.generatePayload(user);
     const tokens = this.tokenService.generateTokens(payload);
     await this.tokenService.saveToken(user.id, tokens.refreshToken);
     return { ...tokens, user };

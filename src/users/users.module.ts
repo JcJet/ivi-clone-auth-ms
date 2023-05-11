@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users.entity';
 import { TokenModule } from '../token/token.module';
 import { Token } from '../token/token.entity';
 import { MailModule } from '../mail/mail.module';
+import { ClientsModule, Transport } from "@nestjs/microservices";
 
 const databaseHost = process.env.POSTGRES_HOST || 'localhost';
 @Module({
@@ -34,6 +35,22 @@ const databaseHost = process.env.POSTGRES_HOST || 'localhost';
       entities: [User, Token],
       synchronize: true,
     }),*/
+    ClientsModule.registerAsync([
+      {
+        name: 'TO_ROLES_MS',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('RABBIT_MQ_URI')],
+            queue: 'toRolesMs',
+            queueOptions: {
+              durable: false,
+            },
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
     TokenModule,
     MailModule,
     TypeOrmModule.forFeature([User, Token]),

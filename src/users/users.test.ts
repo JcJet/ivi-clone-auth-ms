@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeORMTestingModule } from './test-utils/TypeORMTestingModule';
 import { User } from './users.entity';
 import { UserDto } from './dto/user.dto';
-import { AddRoleDto } from './dto/add-role.dto';
 
 describe('UserService', () => {
   let service = null;
@@ -85,23 +84,6 @@ describe('UserService', () => {
   it('should return all users', async () => {
     const getUsersResult = await service.getAllUsers();
     expect(getUsersResult).toBeDefined();
-  });
-
-  it('should add role', async () => {
-    const dto: UserDto = {
-      email: 'test216@mail.com',
-      password: '12345',
-    };
-    await service.createUser(dto);
-    let getUserResult = await service.getUserByEmail(dto.email);
-
-    const addRoleDto: AddRoleDto = {
-      value: 'ADMIN',
-      userId: getUserResult.id,
-    };
-    await service.addRole(addRoleDto);
-    getUserResult = await service.getUserByEmail(dto.email);
-    expect(getUserResult.roles.find((r) => r.value === 'ADMIN')).toBeDefined();
   });
   afterAll(async () => {
     const emails = [
