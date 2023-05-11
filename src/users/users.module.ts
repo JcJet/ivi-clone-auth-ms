@@ -9,7 +9,7 @@ import { Token } from '../token/token.entity';
 import { MailModule } from '../mail/mail.module';
 import { ClientsModule, Transport } from "@nestjs/microservices";
 
-const databaseHost = process.env.POSTGRES_HOST || 'localhost';
+const databaseHost = process.env.DB_HOST || 'localhost';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,15 +19,15 @@ const databaseHost = process.env.POSTGRES_HOST || 'localhost';
       type: 'postgres',
       host: databaseHost,
       port: 5432,
-      username: 'postgres',
-      password: 'my_password',
-      database: 'my_database',
+      username: 'admin',
+      password: 'admin',
+      database: 'auth',
       entities: [User, Token],
       synchronize: true,
     }),
 /*    TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.POSTGRES_HOST,
+      host: process.env.DB_HOST,
       port: Number(process.env.POSTGRES_PORT),
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD.toString(),
@@ -41,7 +41,7 @@ const databaseHost = process.env.POSTGRES_HOST || 'localhost';
         useFactory: (configService: ConfigService) => ({
           transport: Transport.RMQ,
           options: {
-            urls: [configService.get<string>('RABBIT_MQ_URI')],
+            urls: [configService.get<string>('RMQ_URL')],
             queue: 'toRolesMs',
             queueOptions: {
               durable: false,

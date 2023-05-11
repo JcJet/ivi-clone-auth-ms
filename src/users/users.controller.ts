@@ -5,7 +5,7 @@ import { Payload } from '@nestjs/microservices';
 @Controller()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-  //TODO: these endpoints are probably won't be needed - remove controller
+  //TODO: these ivi-clone-endpoints-ms are probably won't be needed - remove controller
   @Post()
   async create(@Payload() data: any) {
     return this.usersService.createUser(data);
