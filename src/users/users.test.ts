@@ -2,10 +2,8 @@ import { UsersService } from './users.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeORMTestingModule } from './test-utils/TypeORMTestingModule';
-import { Role } from './roles/roles.entity';
 import { User } from './users.entity';
 import { UserDto } from './dto/user.dto';
-import { RolesModule } from './roles/roles.module';
 import { AddRoleDto } from './dto/add-role.dto';
 
 describe('UserService', () => {
@@ -14,9 +12,8 @@ describe('UserService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        TypeORMTestingModule([User, Role]),
-        TypeOrmModule.forFeature([User, Role]),
-        RolesModule,
+        TypeORMTestingModule([User]),
+        TypeOrmModule.forFeature([User]),
       ],
       providers: [UsersService],
     }).compile();

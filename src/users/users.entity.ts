@@ -5,7 +5,6 @@ import {
   ManyToMany,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from './roles/roles.entity';
 
 @Entity(`users`)
 export class User {
@@ -50,8 +49,4 @@ export class User {
   @ApiProperty({ example: 'спам', description: 'Причина блокировки' })
   @Column({ type: 'varchar', length: 255, nullable: true })
   bannedReason: string;
-
-  @ManyToMany(() => Role, (role) => role.users, { onDelete: 'CASCADE' })
-  roles: Role[];
-
 }

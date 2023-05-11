@@ -29,22 +29,31 @@ export class AuthController {
   async refresh(@Payload() data: { refreshToken: string }) {
     return await this.usersService.refresh(data.refreshToken);
   }
+
   @MessagePattern('activate')
   @Post('activate')
-  async activate(@Payload() data: { activationLink: string }) {
+  async activateUser(@Payload() data: { activationLink: string }) {
     return await this.usersService.activate(data.activationLink);
   }
-  @MessagePattern('create_user')
+
+  @MessagePattern('createUser')
   @Post()
-  async create(@Payload() data: { dto: UserDto }): Promise<{
+  async createUser(@Payload() data: { dto: UserDto }): Promise<{
     user: User;
     tokens: { accessToken: string; refreshToken: string };
   }> {
     return await this.usersService.registration(data.dto);
   }
 
-  @MessagePattern('delete_user')
-  async delete(@Payload() data: { userId: number }): Promise<User> {
+  @MessagePattern('deleteUser')
+  async deleteUse(@Payload() data: { userId: number }): Promise<User> {
     return await this.usersService.deleteUser(data.userId);
+  }
+
+  @MessagePattern('updateUser')
+  async updateUser(
+    @Payload() data: { id: number; dto: UserDto },
+  ): Promise<User> {
+    return await this.usersService.updateUser(data.id, data.dto);
   }
 }

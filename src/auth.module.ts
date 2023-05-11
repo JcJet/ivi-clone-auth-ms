@@ -1,39 +1,44 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RmqModule } from '@app/common';
 import { ConfigModule } from '@nestjs/config';
 import { User } from './users/users.entity';
-import { Role } from './users/roles/roles.entity';
 import { UsersModule } from './users/users.module';
-import { Token } from "./token/token.entity";
 import { TokenModule } from './token/token.module';
 import { MailModule } from './mail/mail.module';
 
 // Модуль авторизации и проверки доступа
-
+const databaseHost = process.env.POSTGRES_HOST || 'localhost';
 @Module({
   providers: [AuthService],
   imports: [
-    RmqModule,
     UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      //envFilePath: './apps/auth/.env',
+      envFilePath: '.env',
     }),
     TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: databaseHost,
+      port: 5432,
+      username: 'postgres',
+      password: 'my_password',
+      database: 'my_database',
+      entities: [User],
+      synchronize: true,
+    }),
+/*    TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST,
       port: Number(process.env.POSTGRES_PORT),
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD.toString(),
       database: process.env.POSTGRES_DB,
-      entities: [User, Role],
+      entities: [User],
       synchronize: true,
-    }),
-    TypeOrmModule.forFeature([User, Role]),
+    }),*/
+    TypeOrmModule.forFeature([User]),
     TokenModule,
     MailModule,
   ],
