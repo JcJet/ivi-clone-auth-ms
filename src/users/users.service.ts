@@ -108,8 +108,6 @@ export class UsersService {
     }
     const userData = this.tokenService.validateRefreshToken(refreshToken);
     const tokenFromDb = await this.tokenService.findToken(refreshToken);
-    console.log(userData);
-    console.log(tokenFromDb);
     if (!userData || !tokenFromDb) {
       throw new UnauthorizedException({
         message: 'Неверный токен',
