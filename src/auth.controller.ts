@@ -5,38 +5,38 @@ import { UsersService } from './users/users.service';
 import { User } from './users/users.entity';
 import { UserDto } from './users/dto/user.dto';
 
-@Controller('auth')
+@Controller()
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private usersService: UsersService,
   ) {}
 
-  @MessagePattern('login')
+  @MessagePattern({ cmd: 'login' })
   @Post('login')
   async login(@Payload() data: { dto: UserDto }) {
     return await this.usersService.login(data.dto);
   }
 
-  @MessagePattern('logout')
+  @MessagePattern({ cmd: 'logout' })
   @Post('logout')
   async logout(@Payload() data: { refreshToken: string }) {
     return await this.usersService.logout(data.refreshToken);
   }
 
-  @MessagePattern('refresh')
+  @MessagePattern({ cmd: 'refresh' })
   @Post('refresh')
   async refresh(@Payload() data: { refreshToken: string }) {
     return await this.usersService.refresh(data.refreshToken);
   }
 
-  @MessagePattern('activate')
+  @MessagePattern({ cmd: 'activate' })
   @Post('activate')
   async activateUser(@Payload() data: { activationLink: string }) {
     return await this.usersService.activate(data.activationLink);
   }
 
-  @MessagePattern('createUser')
+  @MessagePattern({ cmd: 'createUser' })
   @Post()
   async createUser(@Payload() data: { dto: UserDto }): Promise<{
     user: User;
@@ -45,12 +45,12 @@ export class AuthController {
     return await this.usersService.registration(data.dto);
   }
 
-  @MessagePattern('deleteUser')
+  @MessagePattern({ cmd: 'deleteUser' })
   async deleteUse(@Payload() data: { userId: number }): Promise<User> {
     return await this.usersService.deleteUser(data.userId);
   }
 
-  @MessagePattern('updateUser')
+  @MessagePattern({ cmd: 'updateUser' })
   async updateUser(
     @Payload() data: { id: number; dto: UserDto },
   ): Promise<User> {
