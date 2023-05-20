@@ -26,14 +26,13 @@ export class UsersService {
   ) {}
   async getUserRoles(userId) {
     return await lastValueFrom(
-      this.toRolesProxy.send('getUserRoles', { userId }),
+      this.toRolesProxy.send({ cmd: 'getUserRoles' }, { userId }),
     );
   }
   // payload для jwt-токенов
   async generatePayload(user: User) {
     const roles = await this.getUserRoles(user.id);
     const rolesValues = await roles.map((role) => role.value);
-    console.log(rolesValues);
     return { userId: user.id, email: user.email, roles: rolesValues };
   }
   // Регистрация нового пользователя
