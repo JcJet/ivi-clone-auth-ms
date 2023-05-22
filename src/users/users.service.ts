@@ -14,6 +14,7 @@ import * as uuid from 'uuid';
 import { MailService } from '../mail/mail.service';
 import { lastValueFrom } from "rxjs";
 import { ClientProxy } from "@nestjs/microservices";
+import process from "process";
 
 @Injectable()
 export class UsersService {

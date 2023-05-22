@@ -9,16 +9,15 @@ import { TokenModule } from './token/token.module';
 import { MailModule } from './mail/mail.module';
 
 // Модуль авторизации и проверки доступа
-const databaseHost = process.env.DB_HOST || 'localhost';
+
 @Module({
   providers: [AuthService],
   imports: [
-    UsersModule,
     ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
+      //isGlobal: true,
+      envFilePath: `.${process.env.NODE_ENV}.env`,
     }),
-    TypeOrmModule.forRoot({
+/*    TypeOrmModule.forRoot({
       type: 'postgres',
       host: databaseHost,
       port: 5432,
@@ -27,20 +26,21 @@ const databaseHost = process.env.DB_HOST || 'localhost';
       database: 'auth',
       entities: [User],
       synchronize: true,
-    }),
-/*    TypeOrmModule.forRoot({
+    }),*/
+    TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
       port: Number(process.env.POSTGRES_PORT),
       username: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD.toString(),
+      password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       entities: [User],
       synchronize: true,
-    }),*/
+    }),
     TypeOrmModule.forFeature([User]),
     TokenModule,
     MailModule,
+    UsersModule,
   ],
   controllers: [AuthController],
   exports: [AuthService],

@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AuthModule } from './auth.module';
 import { Transport } from "@nestjs/microservices";
 import { ConfigService } from "@nestjs/config";
+import * as process from "process";
 
 async function bootstrap() {
   const app = await NestFactory.create(AuthModule);
@@ -16,8 +17,13 @@ async function bootstrap() {
       },
     },
   });
-/*  const rmqService = app.get<RmqService>(RmqService);
-  app.connectMicroservice(rmqService.getOptions('AUTH', true));*/
-  await app.startAllMicroservices();
+
+  await app.startAllMicroservices().then(() => {
+    console.log('Auth MS started.');
+    console.log('Application variables:');
+    for (const var_name of ['RMQ_URL', 'DB_HOST', 'POSTGRES_DB']) {
+      console.log(`${var_name}: ${configService.get(var_name)}`);
+    }
+  });
 }
 bootstrap();

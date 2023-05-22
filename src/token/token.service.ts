@@ -11,7 +11,6 @@ export class TokenService {
     private jwtService: JwtService,
   ) {}
   generateTokens(payload) {
-    console.log(payload);
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: '15s',
       secret: process.env.JWT_ACCESS_SECRET,

@@ -6,7 +6,7 @@ COPY . .
 
 RUN npm i
 
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "start:docker"]
 
 FROM node:alpine as production
 
