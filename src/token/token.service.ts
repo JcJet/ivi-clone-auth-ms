@@ -45,7 +45,7 @@ export class TokenService {
     }
   }
 
-  async saveToken(userId, refreshToken) {
+  async saveToken(userId: number, refreshToken: string) {
     const tokenData = await this.tokenRepository.findOneBy({ userId });
     if (tokenData) {
       tokenData.refreshToken = refreshToken;

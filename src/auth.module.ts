@@ -7,6 +7,7 @@ import { User } from './users/users.entity';
 import { UsersModule } from './users/users.module';
 import { TokenModule } from './token/token.module';
 import { MailModule } from './mail/mail.module';
+import {Token} from "./token/token.entity";
 
 // Модуль авторизации и проверки доступа
 
@@ -34,10 +35,10 @@ import { MailModule } from './mail/mail.module';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      entities: [User],
+      entities: [User, Token],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Token]),
     TokenModule,
     MailModule,
     UsersModule,

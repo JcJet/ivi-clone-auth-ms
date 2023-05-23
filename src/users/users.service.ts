@@ -1,9 +1,10 @@
 import {
   HttpException,
-  HttpStatus, Inject,
+  HttpStatus,
+  Inject,
   Injectable,
-  UnauthorizedException
-} from "@nestjs/common";
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './users.entity';
@@ -12,9 +13,10 @@ import * as bcrypt from 'bcrypt';
 import { TokenService } from '../token/token.service';
 import * as uuid from 'uuid';
 import { MailService } from '../mail/mail.service';
-import { lastValueFrom } from "rxjs";
-import { ClientProxy } from "@nestjs/microservices";
-import process from "process";
+import { lastValueFrom } from 'rxjs';
+import { ClientProxy } from '@nestjs/microservices';
+import process from 'process';
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class UsersService {
@@ -23,6 +25,7 @@ export class UsersService {
     private usersRepository: Repository<User>,
     private tokenService: TokenService,
     private mailService: MailService,
+    private configService: ConfigService,
     @Inject('TO_ROLES_MS') private toRolesProxy: ClientProxy,
   ) {}
   async getUserRoles(userId) {
@@ -57,7 +60,8 @@ export class UsersService {
     });
     await this.mailService.sendActivationMail(
       user.email,
-      `${process.env.API_URL}/api/activate/${activationLink}`,
+      `${this.configService.get('API_URL')}/api/activate/${activationLink}`,
+      //`${process.env.API_URL}/api/activate/${activationLink}`,
     );
     user.activationLink = activationLink;
     await this.usersRepository.save(user);
