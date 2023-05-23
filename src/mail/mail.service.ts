@@ -33,7 +33,7 @@ export class MailService {
       });
       mailSent = true;
     } catch (e) {
-      console.log(e);
+      console.log(`Unable to send activation mail: ${e.message}`);
     }
     return mailSent;
   }
