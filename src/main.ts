@@ -7,6 +7,7 @@ import * as process from "process";
 async function bootstrap() {
   const app = await NestFactory.create(AuthModule);
   const configService = app.get(ConfigService);
+
   app.connectMicroservice({
     transport: Transport.RMQ,
     options: {

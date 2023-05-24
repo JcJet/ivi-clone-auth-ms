@@ -42,12 +42,12 @@ export class UsersService {
   // Регистрация нового пользователя
   async registration(dto: UserDto) {
     const candidate = await this.getUserByEmail(dto.email);
-
+    let status: number;
     if (candidate) {
       //TODO: returns internal server error in response, not good.
       throw new HttpException(
         'Пользователь с таким email уже существует',
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.CONFLICT,
       );
     }
 

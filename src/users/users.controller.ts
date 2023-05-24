@@ -1,4 +1,4 @@
-import { Controller, Delete, Post, Put } from '@nestjs/common';
+import {Controller, Delete, Post, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Payload } from '@nestjs/microservices';
 

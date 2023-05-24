@@ -1,11 +1,13 @@
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Controller, Post } from '@nestjs/common';
+import { Controller, Post, UseFilters } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from './users/users.service';
 import { User } from './users/users.entity';
 import { UserDto } from './users/dto/user.dto';
+import { HttpExceptionFilter } from './http-exception.filter';
 
 @Controller()
+@UseFilters(new HttpExceptionFilter())
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
