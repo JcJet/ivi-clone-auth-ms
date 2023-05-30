@@ -28,6 +28,9 @@ export class UsersService {
     private configService: ConfigService,
     @Inject('TO_ROLES_MS') private toRolesProxy: ClientProxy,
   ) {}
+  async getRepository() {
+    return this.usersRepository;
+  }
   async getUserRoles(userId) {
     return await lastValueFrom(
       this.toRolesProxy.send({ cmd: 'getUserRoles' }, { userId }),
@@ -85,6 +88,7 @@ export class UsersService {
       userDto.password,
       user.password,
     );
+    //console.log(userDto.password, user.password);
     if (!passwordEquals) {
       throw new UnauthorizedException({
         message: 'Неверный пароль',
