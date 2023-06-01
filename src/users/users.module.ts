@@ -8,6 +8,7 @@ import { TokenModule } from '../token/token.module';
 import { Token } from '../token/token.entity';
 import { MailModule } from '../mail/mail.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { OAuthProvider } from './oauth-provider.entity';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD.toString(),
       database: process.env.POSTGRES_DB,
-      entities: [User, Token],
+      entities: [User, Token, OAuthProvider],
       synchronize: true,
     }),
     ClientsModule.registerAsync([
@@ -54,7 +55,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     ]),
     TokenModule,
     MailModule,
-    TypeOrmModule.forFeature([User, Token]),
+    TypeOrmModule.forFeature([User, Token, OAuthProvider]),
   ],
   controllers: [UsersController],
   providers: [UsersService],

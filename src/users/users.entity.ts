@@ -1,9 +1,6 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { OAuthProvider } from './oauth-provider.entity';
 
 @Entity(`users`)
 export class User {
@@ -36,4 +33,7 @@ export class User {
   })
   @Column({ type: 'varchar', nullable: true })
   activationLink: string;
+
+  @OneToMany(() => OAuthProvider, (oauthProvider) => oauthProvider.user)
+  oauthProviders: OAuthProvider[];
 }

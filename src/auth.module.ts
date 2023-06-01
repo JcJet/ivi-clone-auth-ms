@@ -9,6 +9,7 @@ import { TokenModule } from './token/token.module';
 import { MailModule } from './mail/mail.module';
 import {Token} from "./token/token.entity";
 import {GoogleStrategy} from "./auth-strategies/google.strategy";
+import {OAuthProvider} from "./users/oauth-provider.entity";
 
 // Модуль авторизации и проверки доступа
 
@@ -26,10 +27,10 @@ import {GoogleStrategy} from "./auth-strategies/google.strategy";
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      entities: [User, Token],
+      entities: [User, Token, OAuthProvider],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([User, Token]),
+    TypeOrmModule.forFeature([User, Token, OAuthProvider]),
     TokenModule,
     MailModule,
     UsersModule,

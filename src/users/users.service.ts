@@ -15,14 +15,16 @@ import * as uuid from 'uuid';
 import { MailService } from '../mail/mail.service';
 import { lastValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
-import process from 'process';
-import {ConfigService} from "@nestjs/config";
+import { ConfigService } from '@nestjs/config';
+import { OAuthProvider } from './oauth-provider.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(OAuthProvider)
+    private oauthRepository: Repository<OAuthProvider>,
     private tokenService: TokenService,
     private mailService: MailService,
     private configService: ConfigService,
@@ -42,10 +44,17 @@ export class UsersService {
     const rolesValues = await roles.map((role) => role.value);
     return { userId: user.id, email: user.email, roles: rolesValues };
   }
+  private async createOAuthProvider(provider: string, user: User) {
+    return this.oauthRepository.insert({
+      provider,
+      user,
+    });
+  }
   // Регистрация нового пользователя
   async registration(dto: UserDto) {
-    const candidate = await this.getUserByEmail(dto.email);
-    let status: number;
+    const formattedEmail = dto.email.toLowerCase();
+    const provider = dto?.provider || 'local';
+    const candidate = await this.getUserByEmail(formattedEmail);
     if (candidate) {
       //TODO: returns internal server error in response, not good.
       throw new HttpException(
@@ -58,13 +67,20 @@ export class UsersService {
     const activationLink = uuid.v4();
 
     const user = await this.createUser({
-      ...dto,
+      email: formattedEmail,
       password: hashPassword,
+      provider: provider,
     });
+    const existingProvider = await this.oauthRepository.findOneBy({
+      provider: provider,
+      user,
+    });
+    if (!existingProvider) {
+      await this.createOAuthProvider(provider, user);
+    }
     await this.mailService.sendActivationMail(
       user.email,
       `${this.configService.get('API_URL')}/api/activate/${activationLink}`,
-      //`${process.env.API_URL}/api/activate/${activationLink}`,
     );
     user.activationLink = activationLink;
     await this.usersRepository.save(user);
@@ -80,7 +96,16 @@ export class UsersService {
   }
   // Вход в систему, возвращает токены и пользователя
   async login(userDto: UserDto) {
-    const user = await this.getUserByEmail(userDto.email);
+    const provider = userDto?.provider || 'local';
+    const user = await this.usersRepository.findOne({
+      where: { email: userDto.email },
+      relations: ['oauthProviders'],
+    });
+    console.log(user);
+    const providerFound = user.oauthProviders.find(
+      (p) => p.provider == provider,
+    );
+    console.log(providerFound);
     if (!user) {
       throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
     }
@@ -88,8 +113,7 @@ export class UsersService {
       userDto.password,
       user.password,
     );
-    //console.log(userDto.password, user.password);
-    if (!passwordEquals) {
+    if (!passwordEquals && provider == 'local') {
       throw new UnauthorizedException({
         message: 'Неверный пароль',
       });
