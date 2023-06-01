@@ -8,26 +8,17 @@ import { UsersModule } from './users/users.module';
 import { TokenModule } from './token/token.module';
 import { MailModule } from './mail/mail.module';
 import {Token} from "./token/token.entity";
+import {GoogleStrategy} from "./auth-strategies/google.strategy";
 
 // Модуль авторизации и проверки доступа
 
 @Module({
-  providers: [AuthService],
+  providers: [AuthService, GoogleStrategy],
   imports: [
     ConfigModule.forRoot({
       //isGlobal: true,
       envFilePath: `.${process.env.NODE_ENV}.env`,
     }),
-/*    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: databaseHost,
-      port: 5432,
-      username: 'admin',
-      password: 'admin',
-      database: 'auth',
-      entities: [User],
-      synchronize: true,
-    }),*/
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,

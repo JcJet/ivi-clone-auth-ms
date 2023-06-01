@@ -58,4 +58,5 @@ export class AuthController {
   ): Promise<User> {
     return await this.usersService.updateUser(data.id, data.dto);
   }
+
 }
