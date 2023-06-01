@@ -12,11 +12,11 @@ export class TokenService {
   ) {}
   generateTokens(payload) {
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: '15s',
+      expiresIn: process.env.JWT_ACCESS_EXPIRATION,
       secret: process.env.JWT_ACCESS_SECRET,
     });
     const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: '30s',
+      expiresIn: process.env.JWT_REFRESH_EXPIRATION,
       secret: process.env.JWT_REFRESH_SECRET,
     });
     return {
