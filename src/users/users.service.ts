@@ -70,6 +70,7 @@ export class UsersService {
       email: formattedEmail,
       password: hashPassword,
       provider: provider,
+      vkId: dto.vkId,
     });
     const existingProvider = await this.oauthRepository.findOneBy({
       provider: provider,
