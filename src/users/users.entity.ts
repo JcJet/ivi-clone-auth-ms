@@ -34,6 +34,9 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   activationLink: string;
 
+  @Column({ type: 'numeric', nullable: true })
+  vkId: number;
+
   @OneToMany(() => OAuthProvider, (oauthProvider) => oauthProvider.user)
   oauthProviders: OAuthProvider[];
 }

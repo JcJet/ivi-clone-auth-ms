@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Token } from './token.entity';
 import { Injectable } from '@nestjs/common';
+import * as process from 'process';
+
 @Injectable()
 export class TokenService {
   constructor(
     @InjectRepository(Token)
-    private tokenRepository: Repository<Token>,
-    private jwtService: JwtService,
+    private readonly tokenRepository: Repository<Token>,
+    private readonly jwtService: JwtService,
   ) {}
   generateTokens(payload) {
     const accessToken = this.jwtService.sign(payload, {

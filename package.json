@@ -21,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs/axios": "^2.0.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^9.0.0",
@@ -32,6 +33,7 @@
     "@nestjs/typeorm": "^9.0.1",
     "amqp-connection-manager": "^4.1.12",
     "amqplib": "^0.10.3",
+    "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
     "cross-env": "^7.0.3",
     "jsonwebtoken": "^9.0.0",

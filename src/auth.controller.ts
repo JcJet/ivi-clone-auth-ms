@@ -58,5 +58,8 @@ export class AuthController {
   ): Promise<User> {
     return await this.usersService.updateUser(data.id, data.dto);
   }
-
+  @MessagePattern({ cmd: 'getUser' })
+  async getUser(@Payload() data: { email: string; vkId: number }) {
+    return await this.usersService.getUser(data.email, data.vkId);
+  }
 }

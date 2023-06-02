@@ -101,14 +101,23 @@ export class UsersService {
       where: { email: userDto.email },
       relations: ['oauthProviders'],
     });
-    console.log(user);
-    const providerFound = user.oauthProviders.find(
-      (p) => p.provider == provider,
-    );
-    console.log(providerFound);
+
     if (!user) {
       throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
     }
+
+    const providerFound = user.oauthProviders.find(
+      (p) => p.provider == provider,
+    );
+    if (!providerFound) {
+      const providerInsertResult = await this.oauthRepository.insert({
+        provider,
+        user,
+      });
+      user.oauthProviders.push(providerInsertResult.raw[0]);
+      await this.oauthRepository.save(user);
+    }
+
     const passwordEquals = await bcrypt.compare(
       userDto.password,
       user.password,
@@ -188,5 +197,14 @@ export class UsersService {
   async deleteUser(id: number): Promise<User> {
     const deleteResult = await this.usersRepository.delete({ id });
     return deleteResult.raw;
+  }
+
+
+  async getUser(email: string, vkId: number) {
+    if (email) {
+      return this.getUserByEmail(email);
+    } else if (vkId) {
+      return this.usersRepository.findOneBy({ vkId });
+    }
   }
 }
