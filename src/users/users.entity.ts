@@ -37,6 +37,9 @@ export class User {
   @Column({ type: 'numeric', nullable: true })
   vkId: number;
 
-  @OneToMany(() => OAuthProvider, (oauthProvider) => oauthProvider.user)
+  @OneToMany(() => OAuthProvider, (oauthProvider) => oauthProvider.user, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
   oauthProviders: OAuthProvider[];
 }

@@ -16,6 +16,9 @@ export class OAuthProvider {
   @Column({ type: 'varchar' })
   public provider: string;
 
-  @ManyToOne(() => User, (user) => user.oauthProviders)
+  @ManyToOne(() => User, (user) => user.oauthProviders, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
   public user: User;
 }
