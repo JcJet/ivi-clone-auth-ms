@@ -201,11 +201,13 @@ export class UsersService {
   }
 
 
-  async getUser(email: string, vkId: number) {
+  async getUser(email: string, vkId: number, userId) {
     if (email) {
       return this.getUserByEmail(email);
     } else if (vkId) {
       return this.usersRepository.findOneBy({ vkId });
+    } else if (userId) {
+      return this.usersRepository.findOneBy({id: userId})
     }
   }
 }
