@@ -5,6 +5,7 @@ import { UsersService } from './users/users.service';
 import { User } from './users/users.entity';
 import { UserDto } from './users/dto/user.dto';
 import { HttpExceptionFilter } from './http-exception.filter';
+import {UpdateResult} from "typeorm";
 
 @Controller()
 @UseFilters(new HttpExceptionFilter())
@@ -55,7 +56,7 @@ export class AuthController {
   @MessagePattern({ cmd: 'updateUser' })
   async updateUser(
     @Payload() data: { id: number; dto: UserDto },
-  ): Promise<User> {
+  ): Promise<UpdateResult> {
     return await this.usersService.updateUser(data.id, data.dto);
   }
   @MessagePattern({ cmd: 'getUser' })

@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { User } from './users.entity';
 import { UserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
@@ -182,16 +182,15 @@ export class UsersService {
   }
 
   // Изменение данных пользователя
-  async updateUser(id: number, dto: UserDto): Promise<User> {
+  async updateUser(id: number, dto: UserDto): Promise<UpdateResult> {
     const hashPassword = await bcrypt.hash(dto.password, 5);
-    const updateResult = await this.usersRepository.update(
+    return await this.usersRepository.update(
       { id },
       {
         password: hashPassword,
         email: dto.email,
       },
     );
-    return updateResult.raw[0];
   }
 
   // Удаление пользователя по id
@@ -200,14 +199,13 @@ export class UsersService {
     return deleteResult.raw;
   }
 
-
   async getUser(email: string, vkId: number, userId) {
     if (email) {
       return this.getUserByEmail(email);
     } else if (vkId) {
       return this.usersRepository.findOneBy({ vkId });
     } else if (userId) {
-      return this.usersRepository.findOneBy({id: userId})
+      return this.usersRepository.findOneBy({ id: userId });
     }
   }
 }
