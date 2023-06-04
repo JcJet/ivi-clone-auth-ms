@@ -183,7 +183,9 @@ export class UsersService {
 
   // Изменение данных пользователя
   async updateUser(id: number, dto: UserDto): Promise<UpdateResult> {
-    const hashPassword = await bcrypt.hash(dto.password, 5);
+    const hashPassword = dto.password
+      ? await bcrypt.hash(dto.password, 5)
+      : undefined;
     return await this.usersRepository.update(
       { id },
       {
