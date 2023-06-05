@@ -16,7 +16,7 @@ I recommend you to explore [main repo](https://github.com/srgklmv/ivi-clone-repo
 ## Requirements
 - Postgres
 - RabbitMQ
-- NestJS
+- NodeJs, npm
 
 ## Installation
 
