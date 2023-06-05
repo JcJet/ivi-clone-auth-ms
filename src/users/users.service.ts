@@ -17,6 +17,7 @@ import { lastValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { OAuthProvider } from './oauth-provider.entity';
+import { logCall } from "../decorators/logging-decorator";
 
 @Injectable()
 export class UsersService {
@@ -33,12 +34,14 @@ export class UsersService {
   async getRepository() {
     return this.usersRepository;
   }
+  @logCall()
   async getUserRoles(userId) {
     return await lastValueFrom(
       this.toRolesProxy.send({ cmd: 'getUserRoles' }, { userId }),
     );
   }
   // payload для jwt-токенов
+  @logCall()
   async generatePayload(user: User) {
     const roles = await this.getUserRoles(user.id);
     const rolesValues = await roles.map((role) => role.value);
@@ -51,6 +54,7 @@ export class UsersService {
     });
   }
   // Регистрация нового пользователя
+  @logCall()
   async registration(dto: UserDto) {
     const formattedEmail = dto.email.toLowerCase();
     const provider = dto?.provider || 'local';
@@ -91,11 +95,13 @@ export class UsersService {
     return { user: user, tokens: tokens };
   }
   // Создание пользователя в базе данных
+  @logCall()
   async createUser(dto: UserDto): Promise<User> {
     const userInsertResult = await this.usersRepository.insert(dto);
     return userInsertResult.raw[0];
   }
   // Вход в систему, возвращает токены и пользователя
+  @logCall()
   async login(userDto: UserDto) {
     const provider = userDto?.provider || 'local';
     const user = await this.usersRepository.findOne({
@@ -133,15 +139,16 @@ export class UsersService {
     await this.tokenService.saveToken(user.id, tokens.refreshToken);
     return { ...tokens, user };
   }
-
+  @logCall()
   async logout(refreshToken: string) {
     return await this.tokenService.removeToken(refreshToken);
   }
   // Поиск пользователя по email
+  @logCall()
   async getUserByEmail(email: string): Promise<User> {
     return await this.usersRepository.findOneBy({ email });
   }
-
+  @logCall()
   async refresh(refreshToken: string) {
     if (!refreshToken) {
       throw new UnauthorizedException({
@@ -163,7 +170,7 @@ export class UsersService {
     await this.tokenService.saveToken(user.id, tokens.refreshToken);
     return { ...tokens, user };
   }
-
+  @logCall()
   async activate(activationLink: string) {
     const user = await this.usersRepository.findOneBy({ activationLink });
     if (!user) {
@@ -177,11 +184,13 @@ export class UsersService {
   }
 
   // Получение всех пользователей
+  @logCall()
   async getAllUsers(): Promise<User[]> {
     return await this.usersRepository.find();
   }
 
   // Изменение данных пользователя
+  @logCall()
   async updateUser(id: number, dto: UserDto): Promise<UpdateResult> {
     const hashPassword = dto.password
       ? await bcrypt.hash(dto.password, 5)
@@ -196,11 +205,12 @@ export class UsersService {
   }
 
   // Удаление пользователя по id
+  @logCall()
   async deleteUser(id: number): Promise<User> {
     const deleteResult = await this.usersRepository.delete({ id });
     return deleteResult.raw;
   }
-
+  @logCall()
   async getUser(email: string, vkId: number, userId) {
     if (email) {
       return this.getUserByEmail(email);
