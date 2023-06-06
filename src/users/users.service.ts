@@ -43,7 +43,7 @@ export class UsersService {
   }
   // payload для jwt-токенов
   @logCall()
-  async generatePayload(
+  private async generatePayload(
     user: User,
   ): Promise<{ userId: number; email: string; roles: string[] }> {
     const roles: any[] = await this.getUserRoles(user.id);
