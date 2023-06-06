@@ -63,7 +63,8 @@ export class UsersService {
   @logCall()
   async registration(dto: UserDto): Promise<{
     user: User;
-    tokens: { accessToken: string; refreshToken: string };
+    accessToken: string;
+    refreshToken: string;
   }> {
     const formattedEmail: string = dto.email.toLowerCase();
     const provider: string = dto?.provider || 'local';
@@ -101,7 +102,7 @@ export class UsersService {
 
     const payload = await this.generatePayload(user);
     const tokens = this.tokenService.generateTokens(payload);
-    return { user, tokens };
+    return { user, ...tokens };
   }
   // Создание пользователя в базе данных
   @logCall()
@@ -113,7 +114,8 @@ export class UsersService {
   @logCall()
   async login(userDto: UserDto): Promise<{
     user: User;
-    tokens: { accessToken: string; refreshToken: string };
+    accessToken: string;
+    refreshToken: string;
   }> {
     const provider: string = userDto?.provider || 'local';
     const user: User = await this.usersRepository.findOne({
@@ -149,7 +151,7 @@ export class UsersService {
     const payload = await this.generatePayload(user);
     const tokens = this.tokenService.generateTokens(payload);
     await this.tokenService.saveToken(user.id, tokens.refreshToken);
-    return { user, tokens };
+    return { user, ...tokens };
   }
   @logCall()
   async logout(refreshToken: string): Promise<DeleteResult> {
@@ -163,7 +165,8 @@ export class UsersService {
   @logCall()
   async refresh(refreshToken: string): Promise<{
     user: User;
-    tokens: { accessToken: string; refreshToken: string };
+    accessToken: string;
+    refreshToken: string;
   }> {
     if (!refreshToken) {
       throw new UnauthorizedException({
@@ -183,7 +186,7 @@ export class UsersService {
     const payload = await this.generatePayload(user);
     const tokens = this.tokenService.generateTokens(payload);
     await this.tokenService.saveToken(user.id, tokens.refreshToken);
-    return { user, tokens };
+    return { user, ...tokens };
   }
   @logCall()
   async activate(activationLink: string): Promise<void> {

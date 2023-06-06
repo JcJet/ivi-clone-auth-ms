@@ -5,7 +5,7 @@ import { UsersService } from './users/users.service';
 import { User } from './users/users.entity';
 import { UserDto } from './users/dto/user.dto';
 import { HttpExceptionFilter } from './http-exception.filter';
-import {DeleteResult, UpdateResult} from 'typeorm';
+import { DeleteResult, UpdateResult } from 'typeorm';
 
 @Controller()
 @UseFilters(new HttpExceptionFilter())
@@ -19,7 +19,8 @@ export class AuthController {
   @Post('login')
   async login(@Payload() data: { dto: UserDto }): Promise<{
     user: User;
-    tokens: { accessToken: string; refreshToken: string };
+    accessToken: string;
+    refreshToken: string;
   }> {
     return await this.usersService.login(data.dto);
   }
@@ -36,7 +37,8 @@ export class AuthController {
   @Post('refresh')
   async refresh(@Payload() data: { refreshToken: string }): Promise<{
     user: User;
-    tokens: { accessToken: string; refreshToken: string };
+    accessToken: string;
+    refreshToken: string;
   }> {
     return await this.usersService.refresh(data.refreshToken);
   }
@@ -53,7 +55,8 @@ export class AuthController {
   @Post()
   async createUser(@Payload() data: { dto: UserDto }): Promise<{
     user: User;
-    tokens: { accessToken: string; refreshToken: string };
+    accessToken: string;
+    refreshToken: string;
   }> {
     return await this.usersService.registration(data.dto);
   }

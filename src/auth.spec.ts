@@ -57,6 +57,8 @@ describe('auth Controller', () => {
       const dto: UserDto = {
         email: 'test211@mail.com',
         password: '12345',
+        provider: 'local',
+        vkId: null,
       };
       await userService.registration(dto);
       const getUserResult = await userService.getUserByEmail(dto.email);
@@ -66,6 +68,8 @@ describe('auth Controller', () => {
       const dto: UserDto = {
         email: 'test21t@mail.com',
         password: '12345',
+        provider: 'local',
+        vkId: null,
       };
       await userService.createUser(dto);
 
@@ -79,6 +83,8 @@ describe('auth Controller', () => {
       const dto: UserDto = {
         email: 'test212@mail.com',
         password: '12345',
+        provider: 'local',
+        vkId: null,
       };
       await userService.createUser(dto);
 
@@ -91,6 +97,8 @@ describe('auth Controller', () => {
       const dto: UserDto = {
         email: 'test213@mail.com',
         password: '12345',
+        provider: 'local',
+        vkId: null,
       };
       await userService.createUser(dto);
       let getUserResult = await userService.getUserByEmail(dto.email);
@@ -98,6 +106,8 @@ describe('auth Controller', () => {
       const newDto: UserDto = {
         email: 'newtest213@mail.com',
         password: '12345678',
+        provider: 'local',
+        vkId: null,
       };
 
       await userService.updateUser(getUserResult.id, newDto);
@@ -115,6 +125,8 @@ describe('auth Controller', () => {
     const testUserDto: UserDto = {
       email: 'test_email2@mail.com',
       password: 'pass',
+      provider: 'local',
+      vkId: null,
     };
     beforeAll(async () => {
       await userService.registration(testUserDto);
@@ -122,13 +134,18 @@ describe('auth Controller', () => {
     it('login should return correct data', async () => {
       const loginResult = await controller.login({ dto: testUserDto });
       expect(loginResult.user.email).toBeDefined();
-      expect(loginResult.refreshToken).toBeDefined();
-      expect(loginResult.accessToken).toBeDefined();
+      expect(loginResult.tokens.refreshToken).toBeDefined();
+      expect(loginResult.tokens.accessToken).toBeDefined();
     });
     it('login should return error with incorrect credentials', async () => {
       const loginFunc = async () =>
         await controller.login({
-          dto: { email: 'a@a.com', password: 'asd' },
+          dto: {
+            email: 'a@a.com',
+            password: 'asd',
+            vkId: null,
+            provider: 'local',
+          },
         });
       await expect(loginFunc()).rejects.toThrow(HttpException);
     });
