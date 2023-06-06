@@ -7,9 +7,9 @@ import { User } from './users/users.entity';
 import { UsersModule } from './users/users.module';
 import { TokenModule } from './token/token.module';
 import { MailModule } from './mail/mail.module';
-import {Token} from "./token/token.entity";
-import {GoogleStrategy} from "./auth-strategies/google.strategy";
-import {OAuthProvider} from "./users/oauth-provider.entity";
+import { Token } from './token/token.entity';
+import { GoogleStrategy } from './auth-strategies/google.strategy';
+import { OAuthProvider } from './users/oauth-provider.entity';
 
 // Модуль авторизации и проверки доступа
 
@@ -17,7 +17,6 @@ import {OAuthProvider} from "./users/oauth-provider.entity";
   providers: [AuthService, GoogleStrategy],
   imports: [
     ConfigModule.forRoot({
-      //isGlobal: true,
       envFilePath: `.${process.env.NODE_ENV}.env`,
     }),
     TypeOrmModule.forRoot({

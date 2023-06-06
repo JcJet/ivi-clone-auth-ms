@@ -1,6 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {DeleteResult, InsertResult, Repository} from 'typeorm';
 import { Token } from './token.entity';
 import { Injectable } from '@nestjs/common';
 import * as process from 'process';
@@ -12,7 +12,10 @@ export class TokenService {
     private readonly tokenRepository: Repository<Token>,
     private readonly jwtService: JwtService,
   ) {}
-  generateTokens(payload) {
+  generateTokens(payload: string | object): {
+    accessToken: string;
+    refreshToken: string;
+  } {
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: process.env.JWT_ACCESS_EXPIRATION,
       secret: process.env.JWT_ACCESS_SECRET,
@@ -27,7 +30,7 @@ export class TokenService {
     };
   }
 
-  validateAccessToken(token) {
+  validateAccessToken(token: string) {
     try {
       return this.jwtService.verify(token, {
         secret: process.env.JWT_ACCESS_SECRET,
@@ -37,7 +40,7 @@ export class TokenService {
     }
   }
 
-  validateRefreshToken(token) {
+  validateRefreshToken(token: string) {
     try {
       return this.jwtService.verify(token, {
         secret: process.env.JWT_REFRESH_SECRET,
@@ -47,7 +50,10 @@ export class TokenService {
     }
   }
 
-  async saveToken(userId: number, refreshToken: string) {
+  async saveToken(
+    userId: number,
+    refreshToken: string,
+  ): Promise<Token | InsertResult> {
     const tokenData = await this.tokenRepository.findOneBy({ userId });
     if (tokenData) {
       tokenData.refreshToken = refreshToken;
@@ -56,11 +62,11 @@ export class TokenService {
     return await this.tokenRepository.insert({ userId, refreshToken });
   }
 
-  async removeToken(refreshToken) {
+  async removeToken(refreshToken: string): Promise<DeleteResult> {
     return await this.tokenRepository.delete({ refreshToken });
   }
 
-  async findToken(refreshToken) {
+  async findToken(refreshToken: string): Promise<Token> {
     return await this.tokenRepository.findOneBy({ refreshToken });
   }
 }

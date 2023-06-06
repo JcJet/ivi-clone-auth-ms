@@ -9,7 +9,6 @@ import { JwtModule } from '@nestjs/jwt';
   providers: [TokenService],
   imports: [
     ConfigModule.forRoot({
-      //isGlobal: true,
       envFilePath: `.${process.env.NODE_ENV}.env`,
     }),
     JwtModule.register({

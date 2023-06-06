@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, InsertResult, Repository, UpdateResult } from 'typeorm';
 import { User } from './users.entity';
 import { UserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
@@ -17,7 +17,8 @@ import { lastValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { OAuthProvider } from './oauth-provider.entity';
-import { logCall } from "../decorators/logging-decorator";
+import { logCall } from '../decorators/logging-decorator';
+import { Token } from '../token/token.entity';
 
 @Injectable()
 export class UsersService {
@@ -31,23 +32,28 @@ export class UsersService {
     private configService: ConfigService,
     @Inject('TO_ROLES_MS') private toRolesProxy: ClientProxy,
   ) {}
-  async getRepository() {
+  async getRepository(): Promise<Repository<User>> {
     return this.usersRepository;
   }
   @logCall()
-  async getUserRoles(userId) {
+  async getUserRoles(userId: number): Promise<any[]> {
     return await lastValueFrom(
       this.toRolesProxy.send({ cmd: 'getUserRoles' }, { userId }),
     );
   }
   // payload для jwt-токенов
   @logCall()
-  async generatePayload(user: User) {
-    const roles = await this.getUserRoles(user.id);
-    const rolesValues = await roles.map((role) => role.value);
+  async generatePayload(
+    user: User,
+  ): Promise<{ userId: number; email: string; roles: string[] }> {
+    const roles: any[] = await this.getUserRoles(user.id);
+    const rolesValues: any[] = roles.map((role) => role.value);
     return { userId: user.id, email: user.email, roles: rolesValues };
   }
-  private async createOAuthProvider(provider: string, user: User) {
+  private async createOAuthProvider(
+    provider: string,
+    user: User,
+  ): Promise<InsertResult> {
     return this.oauthRepository.insert({
       provider,
       user,
@@ -55,31 +61,34 @@ export class UsersService {
   }
   // Регистрация нового пользователя
   @logCall()
-  async registration(dto: UserDto) {
-    const formattedEmail = dto.email.toLowerCase();
-    const provider = dto?.provider || 'local';
-    const candidate = await this.getUserByEmail(formattedEmail);
+  async registration(dto: UserDto): Promise<{
+    user: User;
+    tokens: { accessToken: string; refreshToken: string };
+  }> {
+    const formattedEmail: string = dto.email.toLowerCase();
+    const provider: string = dto?.provider || 'local';
+    const candidate: User = await this.getUserByEmail(formattedEmail);
     if (candidate) {
-      //TODO: returns internal server error in response, not good.
       throw new HttpException(
         'Пользователь с таким email уже существует',
         HttpStatus.CONFLICT,
       );
     }
 
-    const hashPassword = await bcrypt.hash(dto.password, 5);
-    const activationLink = uuid.v4();
+    const hashPassword: string = await bcrypt.hash(dto.password, 5);
+    const activationLink: string = uuid.v4();
 
-    const user = await this.createUser({
+    const user: User = await this.createUser({
       email: formattedEmail,
       password: hashPassword,
       provider: provider,
       vkId: dto.vkId,
     });
-    const existingProvider = await this.oauthRepository.findOneBy({
-      provider: provider,
-      user,
-    });
+    const existingProvider: OAuthProvider =
+      await this.oauthRepository.findOneBy({
+        provider: provider,
+        user: user,
+      });
     if (!existingProvider) {
       await this.createOAuthProvider(provider, user);
     }
@@ -92,7 +101,7 @@ export class UsersService {
 
     const payload = await this.generatePayload(user);
     const tokens = this.tokenService.generateTokens(payload);
-    return { user: user, tokens: tokens };
+    return { user, tokens };
   }
   // Создание пользователя в базе данных
   @logCall()
@@ -102,9 +111,12 @@ export class UsersService {
   }
   // Вход в систему, возвращает токены и пользователя
   @logCall()
-  async login(userDto: UserDto) {
-    const provider = userDto?.provider || 'local';
-    const user = await this.usersRepository.findOne({
+  async login(userDto: UserDto): Promise<{
+    user: User;
+    tokens: { accessToken: string; refreshToken: string };
+  }> {
+    const provider: string = userDto?.provider || 'local';
+    const user: User = await this.usersRepository.findOne({
       where: { email: userDto.email },
       relations: ['oauthProviders'],
     });
@@ -113,7 +125,7 @@ export class UsersService {
       throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
     }
 
-    const providerFound = user.oauthProviders.find(
+    const providerFound: OAuthProvider = user.oauthProviders.find(
       (p) => p.provider == provider,
     );
     if (!providerFound) {
@@ -137,10 +149,10 @@ export class UsersService {
     const payload = await this.generatePayload(user);
     const tokens = this.tokenService.generateTokens(payload);
     await this.tokenService.saveToken(user.id, tokens.refreshToken);
-    return { ...tokens, user };
+    return { user, tokens };
   }
   @logCall()
-  async logout(refreshToken: string) {
+  async logout(refreshToken: string): Promise<DeleteResult> {
     return await this.tokenService.removeToken(refreshToken);
   }
   // Поиск пользователя по email
@@ -149,30 +161,33 @@ export class UsersService {
     return await this.usersRepository.findOneBy({ email });
   }
   @logCall()
-  async refresh(refreshToken: string) {
+  async refresh(refreshToken: string): Promise<{
+    user: User;
+    tokens: { accessToken: string; refreshToken: string };
+  }> {
     if (!refreshToken) {
       throw new UnauthorizedException({
         message: 'Refresh токен отсутствует',
       });
     }
     const userData = this.tokenService.validateRefreshToken(refreshToken);
-    const tokenFromDb = await this.tokenService.findToken(refreshToken);
+    const tokenFromDb: Token = await this.tokenService.findToken(refreshToken);
     if (!userData || !tokenFromDb) {
       throw new UnauthorizedException({
         message: 'Неверный токен',
       });
     }
-    const user = await this.usersRepository.findOneBy({
+    const user: User = await this.usersRepository.findOneBy({
       id: userData.userId,
     });
     const payload = await this.generatePayload(user);
     const tokens = this.tokenService.generateTokens(payload);
     await this.tokenService.saveToken(user.id, tokens.refreshToken);
-    return { ...tokens, user };
+    return { user, tokens };
   }
   @logCall()
-  async activate(activationLink: string) {
-    const user = await this.usersRepository.findOneBy({ activationLink });
+  async activate(activationLink: string): Promise<void> {
+    const user: User = await this.usersRepository.findOneBy({ activationLink });
     if (!user) {
       throw new HttpException(
         'Неккоректная ссылка активации',
@@ -206,12 +221,11 @@ export class UsersService {
 
   // Удаление пользователя по id
   @logCall()
-  async deleteUser(id: number): Promise<User> {
-    const deleteResult = await this.usersRepository.delete({ id });
-    return deleteResult.raw;
+  async deleteUser(id: number): Promise<DeleteResult> {
+    return await this.usersRepository.delete({ id });
   }
   @logCall()
-  async getUser(email: string, vkId: number, userId) {
+  async getUser(email: string, vkId: number, userId): Promise<User> {
     if (email) {
       return this.getUserByEmail(email);
     } else if (vkId) {

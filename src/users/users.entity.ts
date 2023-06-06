@@ -8,7 +8,6 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  //Email string in limited to 254 according to errata against RFC 3696 https://www.rfc-editor.org/errata_search.php?rfc=3696
   @ApiProperty({
     example: 'user@gmail.com',
     description: 'Адрес электронной почты',

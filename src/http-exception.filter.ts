@@ -1,14 +1,12 @@
-import {
-  ExceptionFilter,
-  Catch,
-  HttpException
-} from '@nestjs/common';
+import { ExceptionFilter, Catch, HttpException } from '@nestjs/common';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException) {
-    const message = exception.message;
-    const statusCode = exception.getStatus();
+  catch(exception: HttpException): {
+    exception: { message: string; statusCode: number };
+  } {
+    const message: string = exception.message;
+    const statusCode: number = exception.getStatus();
     return { exception: { message, statusCode } };
   }
 }

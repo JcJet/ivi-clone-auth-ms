@@ -16,7 +16,7 @@ export class MailService {
     });
   }
 
-  async sendActivationMail(to, link) {
+  async sendActivationMail(to, link): Promise<boolean> {
     let mailSent = false;
     try {
       await this.transporter.sendMail({

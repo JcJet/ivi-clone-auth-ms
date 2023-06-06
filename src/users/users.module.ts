@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -13,19 +12,8 @@ import { OAuthProvider } from './oauth-provider.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      //isGlobal: true,
       envFilePath: `.${process.env.NODE_ENV}.env`,
     }),
-/*    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: databaseHost,
-      port: 5432,
-      username: 'admin',
-      password: 'admin',
-      database: 'auth',
-      entities: [User, Token],
-      synchronize: true,
-    }),*/
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -57,7 +45,7 @@ import { OAuthProvider } from './oauth-provider.entity';
     MailModule,
     TypeOrmModule.forFeature([User, Token, OAuthProvider]),
   ],
-  controllers: [UsersController],
+  controllers: [],
   providers: [UsersService],
   exports: [UsersService],
 })

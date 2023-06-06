@@ -5,7 +5,7 @@ import { UsersService } from './users/users.service';
 import { User } from './users/users.entity';
 import { UserDto } from './users/dto/user.dto';
 import { HttpExceptionFilter } from './http-exception.filter';
-import {UpdateResult} from "typeorm";
+import {DeleteResult, UpdateResult} from 'typeorm';
 
 @Controller()
 @UseFilters(new HttpExceptionFilter())
@@ -17,25 +17,35 @@ export class AuthController {
 
   @MessagePattern({ cmd: 'login' })
   @Post('login')
-  async login(@Payload() data: { dto: UserDto }) {
+  async login(@Payload() data: { dto: UserDto }): Promise<{
+    user: User;
+    tokens: { accessToken: string; refreshToken: string };
+  }> {
     return await this.usersService.login(data.dto);
   }
 
   @MessagePattern({ cmd: 'logout' })
   @Post('logout')
-  async logout(@Payload() data: { refreshToken: string }) {
+  async logout(
+    @Payload() data: { refreshToken: string },
+  ): Promise<DeleteResult> {
     return await this.usersService.logout(data.refreshToken);
   }
 
   @MessagePattern({ cmd: 'refresh' })
   @Post('refresh')
-  async refresh(@Payload() data: { refreshToken: string }) {
+  async refresh(@Payload() data: { refreshToken: string }): Promise<{
+    user: User;
+    tokens: { accessToken: string; refreshToken: string };
+  }> {
     return await this.usersService.refresh(data.refreshToken);
   }
 
   @MessagePattern({ cmd: 'activate' })
   @Post('activate')
-  async activateUser(@Payload() data: { activationLink: string }) {
+  async activateUser(
+    @Payload() data: { activationLink: string },
+  ): Promise<void> {
     return await this.usersService.activate(data.activationLink);
   }
 
@@ -49,7 +59,7 @@ export class AuthController {
   }
 
   @MessagePattern({ cmd: 'deleteUser' })
-  async deleteUse(@Payload() data: { userId: number }): Promise<User> {
+  async deleteUser(@Payload() data: { userId: number }): Promise<DeleteResult> {
     return await this.usersService.deleteUser(data.userId);
   }
 
@@ -62,7 +72,7 @@ export class AuthController {
   @MessagePattern({ cmd: 'getUser' })
   async getUser(
     @Payload() data: { email: string; vkId: number; userId: number },
-  ) {
+  ): Promise<User> {
     return await this.usersService.getUser(data.email, data.vkId, data.userId);
   }
 }
