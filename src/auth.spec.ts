@@ -15,6 +15,7 @@ import { TokenModule } from './token/token.module';
 import { MailModule } from './mail/mail.module';
 import { UsersModule } from './users/users.module';
 import { HttpException } from '@nestjs/common';
+import {OAuthProvider} from "./users/oauth-provider.entity";
 
 describe('auth Controller', () => {
   let controller: AuthController;
@@ -28,8 +29,8 @@ describe('auth Controller', () => {
           envFilePath: `.${process.env.NODE_ENV}.env`,
         }),
 
-        TypeORMTestingModule([User, Token]),
-        TypeOrmModule.forFeature([User, Token]),
+        TypeORMTestingModule([User, Token, OAuthProvider]),
+        TypeOrmModule.forFeature([User, Token, OAuthProvider]),
 
         TokenModule,
         MailModule,
