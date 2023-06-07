@@ -134,8 +134,8 @@ describe('auth Controller', () => {
     it('login should return correct data', async () => {
       const loginResult = await controller.login({ dto: testUserDto });
       expect(loginResult.user.email).toBeDefined();
-      expect(loginResult.tokens.refreshToken).toBeDefined();
-      expect(loginResult.tokens.accessToken).toBeDefined();
+      expect(loginResult.refreshToken).toBeDefined();
+      expect(loginResult.accessToken).toBeDefined();
     });
     it('login should return error with incorrect credentials', async () => {
       const loginFunc = async () =>

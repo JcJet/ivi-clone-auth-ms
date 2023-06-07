@@ -59,7 +59,7 @@ SMTP_PASSWORD
 These are parameters for an email account from which an activation mail will be sent from. 
 They're not required to run the microservice if this feature is not required.
 ```
-API_URL=http://193.32.203.137:4000
+API_URL=http://localhost:4000
 ```
 API URL should be an ***external*** address of API Gateway. It's required for oauth features to work. 
 
